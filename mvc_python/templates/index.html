@@ -1,0 +1,167 @@
+{% extends 'header.html' %}
+{% block body %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
+<div class="position-relative">
+    <div class="col-lg-12">
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <p class="text-muted font-13 m-b-30" style="text-align: center;">
+                    <button type="button" data-bs-toggle="modal" data-bs-target="#NewField" class="btn btn-primary">Nueva Mascarilla</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for mensaje in messages %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert" id="success-alert">
+            <strong>{{ mensaje }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <h2>Lista de mascarillas</h2>
+    <div class="panel-body">
+        {% block content %}
+        <table class="table table-striped">
+            <tr>
+                <th>Mascarilla</th>
+                <th>Marca</th>
+                <th>Tipo de piel</th>
+                <th>Ingredientes clave</th>
+                <th>Beneficios</th>
+                <th>Precio</th>
+                <th>Opiniones/Notas</th>
+                <th>Acciones</th>
+            </tr>
+            {% for Mascarilla in mascarillas %}
+            <tr>
+                <td>{{ Mascarilla.nombre }}</td>
+                <td>{{ Mascarilla.marca }}</td>
+                <td>{{ Mascarilla.tipo_piel }}</td>
+                <td>{{ Mascarilla.ingredientes }}</td>
+                <td>{{ Mascarilla.beneficios }}</td>
+                <td>{{ Mascarilla.precio }}</td>
+                <td>{{ Mascarilla.opiniones }}</td>
+                <td>
+                    <button type="button" data-id="{{ Mascarilla.id }}" class="MascarillasInfo btn btn-success" title="Detalles">Detalles</button>
+                    <button type="button" data-id="{{ Mascarilla.id }}" class="EliminarMascarilla btn btn-danger" title="Eliminar">Eliminar</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endblock %}
+    </div>
+
+    <!-- Modal para nueva mascarilla -->
+    <div class="modal fade" id="NewField" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Registrar nueva mascarilla</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="insert_form" method="POST" action="/addMascarilla">
+                    <div class="modal-body">
+                        <table class="table table-hover">
+                            <tr>
+                                <th>Mascarilla</th>
+                                <td><input type="text" name="nombre" id="nombre" class="form-control" required></td>
+                            </tr>
+                            <tr>
+                                <th>Marca</th>
+                                <td><input type="text" name="marca" id="marca" class="form-control" required></td>
+                            </tr>
+                            <tr>
+                                <th>Tipo de piel</th>
+                                <td><input type="text" name="tipo_piel" id="tipo_piel" class="form-control" required></td>
+                            </tr>
+                            <tr>
+                                <th>Ingredientes clave</th>
+                                <td><input type="text" name="ingredientes" id="ingredientes" class="form-control" required></td>
+                            </tr>
+                            <tr>
+                                <th>Beneficios</th>
+                                <td><input type="text" name="beneficios" id="beneficios" class="form-control" required></td>
+                            </tr>
+                            <tr>
+                                <th>Precio</th>
+                                <td><input type="number" name="precio" id="precio" class="form-control" required></td>
+                            </tr>
+                            <tr>
+                                <th>Opiniones/Notas</th>
+                                <td><input type="text" name="opiniones" id="opiniones" class="form-control" required></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles de la mascarilla -->
+    <div class="modal fade" id="viewField" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Detalles de la mascarilla</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Aquí se cargan los detalles -->
+                </div>
+                <div class="modal-footer"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#success-alert").fadeTo(3000, 500).slideUp(500, function() {
+            $("#success-alert").slideUp(500);
+        });
+
+        // Detalles de la mascarilla
+        $('.MascarillasInfo').click(function() {
+            var id = $(this).data('id');
+            $.ajax({
+                url: '/viewMascarilla',
+                type: 'POST',
+                data: { id: id },
+                success: function(data) {
+                    $('.modal-body').html(data);
+                    $('#viewField').modal('show');
+                }
+            });
+        });
+
+        // Eliminar mascarilla
+        $('.EliminarMascarilla').click(function() {
+            var id = $(this).data('id');
+            if (confirm('¿Estás seguro de que deseas eliminar esta mascarilla?')) {
+                $.ajax({
+                    url: '/deleteMascarilla',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function() {
+                        location.reload();
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+{% endblock %}

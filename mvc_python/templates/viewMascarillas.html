@@ -1,0 +1,35 @@
+{% for mascarilla in mascarillas %}
+<form id="view_form" method="POST" action="/updatemascarillas">
+    <table class="table table-hover">
+        <tr>
+            <th>Nombre</th>
+            <th>{{ mascarilla.nombre }}</th>
+        </tr>
+        <tr>
+            <th>Marca</th>
+            <th><input type="text" value="{{ mascarilla.marca }}" name="Marca" id="Marca" class="form-control" required="true"></th>
+        </tr>
+        <tr>
+            <th>Tipo</th>
+            <th><input type="text" value="{{ mascarilla.tipo }}" name="Tipo" id="Tipo" class="form-control" required="true"></th>
+        </tr>
+        <tr>
+            <th>Color</th>
+            <th><input type="text" value="{{ mascarilla.color }}" name="Color" id="Color" class="form-control" required="true"></th>
+        </tr>
+        <tr>
+            <th>Cantidad</th>
+            <th><input type="text" value="{{ mascarilla.cantidad }}" name="Cantidad" id="Cantidad" class="form-control" required="true"></th>
+        </tr>
+
+        <tr>
+            <input type="hidden" name="id" id="id" value="{{ mascarilla.nombre }}">
+            <th colspan="2">
+                <a href="/deletemascarillas/{{mascarilla.nombre}}" class="btn btn-outline btn-danger"
+                    onclick="return confirm('¿Está seguro de eliminar este registro?')">Eliminar</a>
+                <button type="submit" class="btn btn-outline btn-success">Actualizar</button>
+            </th>
+        </tr>
+    </table>
+</form>
+{% endfor %}
